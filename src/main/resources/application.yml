@@ -1,6 +1,6 @@
 ﻿spring:
   application:
-    name: jv-sms-cmpp
+    name: sms-cmpp
 
 gs:
   env: local
