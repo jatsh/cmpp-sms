@@ -1,0 +1,1 @@
+﻿基于[SMSGate](https://github.com/Lihuanghe/SMSGate)实现对接CMPP2.0协议发送SMS

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-4.3.xsd">
+
+    <bean id="gs-JavaMailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="protocol" value="${mail.protocol}"/>
+        <property name="host" value="${mail.host}"/>
+        <property name="port" value="${mail.port}"/>
+        <property name="username" value="${mail.username}"/>
+        <property name="defaultEncoding" value="${mail.default.encoding}"/>
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+                <prop key="mail.smtp.ssl.enable">${mail.smtp.ssl.enable}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="gsMailService" class="com.netease.jv.cmpp.mail.GsMailService">
+        <constructor-arg ref="gs-JavaMailSender"/>
+    </bean>
+
+</beans>

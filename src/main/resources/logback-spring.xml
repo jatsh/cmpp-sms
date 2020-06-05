@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+    <!-- 属性文件:在properties文件中找到对应的配置项 -->
+    <springProperty name="LOG_APPNAME" scope="context" source="spring.application.name"/>
+    <contextName>${LOG_APPNAME}</contextName>
+
+    <property name="LOG_PATH" value="/home/logs/app-${LOG_APPNAME}/"/>
+    <property name="LOG_CHARSET" value="UTF-8"/>
+    <property name="LOG_MAX_FILE_SIZE" value="100MB"/>
+    <property name="LOG_MAX_HISTORY" value="200"/>
+    <property name="LOG_TOTAL_SIZECAP" value="10GB"/>
+
+    <property name="LOG_PATTERN_CONSOLE" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %m%n%xEx"/>
+    <property name="LOG_PATTERN_FILE" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %5p %m%n%xEx"/>
+
+    <conversionRule conversionWord="ip" converterClass="com.netease.jv.cmpp.logger.GsIpClassicConverter"/>
+
+    <springProfile name="local,dev">
+        <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>INFO</level>
+            </filter>
+            <encoder>
+                <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+                <charset>${LOG_CHARSET}</charset>
+            </encoder>
+        </appender>
+    </springProfile>
+
+    <springProfile name="prod">
+        <property name="LOG_PATH" value="/home/logs/app"/>
+    </springProfile>
+
+    <appender name="LOG_ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>WARN</level>
+        </filter>
+        <file>${LOG_PATH}/exception.log</file>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/exception.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOG_TOTAL_SIZECAP}</totalSizeCap>
+        </rollingPolicy>
+        <append>true</append>
+        <springProfile name="local,dev">
+            <encoder>
+                <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+                <charset>${LOG_CHARSET}</charset>
+            </encoder>
+        </springProfile>
+        <springProfile name="test,prod">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <pattern>
+                        <pattern>
+                            {
+                            "appname": "${LOG_APPNAME}",
+                            "hostname":"%ip",
+                            "timestamp": "%d" ,
+                            "date":"%date{\"yyyy-MM-dd'T'HH:mm:ss,SSSZ\"}",
+                            "level": "%level",
+                            "filename":"/home/logs/app/exception.log",
+                            "thread": "%thread",
+                            "classname": "%class",
+                            "ndc":"%X",
+                            "methodname":"%M",
+                            "line_number": "%line",
+                            "message": "%message",
+                            "throwable": "%exception{5}"
+                            }
+                        </pattern>
+                    </pattern>
+                </providers>
+            </encoder>
+        </springProfile>
+    </appender>
+
+    <appender name="BUSINESS" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/business.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/business.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxFileSize>${LOG_MAX_FILE_SIZE}</maxFileSize>
+            <maxHistory>${LOG_MAX_HISTORY}</maxHistory>
+            <totalSizeCap>${LOG_TOTAL_SIZECAP}</totalSizeCap>
+        </rollingPolicy>
+        <append>true</append>
+        <springProfile name="local,dev">
+            <encoder>
+                <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+                <charset>${LOG_CHARSET}</charset>
+            </encoder>
+        </springProfile>
+        <springProfile name="test,prod">
+            <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+                <providers>
+                    <pattern>
+                        <pattern>
+                            {
+                            "appname": "${LOG_APPNAME}",
+                            "hostname":"%ip",
+                            "timestamp": "%d" ,
+                            "date":"%date{\"yyyy-MM-dd'T'HH:mm:ss,SSSZ\"}",
+                            "level": "%level",
+                            "filename":"/home/logs/app/exception.log",
+                            "thread": "%thread",
+                            "classname": "%class",
+                            "ndc":"%X",
+                            "methodname":"%M",
+                            "line_number": "%line",
+                            "message": "%message",
+                            "throwable": "%exception{5}"
+                            }
+                        </pattern>
+                    </pattern>
+                </providers>
+            </encoder>
+        </springProfile>
+    </appender>
+
+    <springProfile name="local,dev">
+        <logger name="BUSINESS" level="INFO" additivity="false">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="BUSINESS"/>
+        </logger>
+        <root level="WARN">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="LOG_ROLLING_FILE"/>
+        </root>
+        <logger name="com.netease.jv" level="INFO"/>
+    </springProfile>
+
+    <springProfile name="test,prod">
+        <logger name="BUSINESS" level="INFO" additivity="false">
+            <appender-ref ref="BUSINESS"/>
+        </logger>
+        <root level="WARN">
+            <appender-ref ref="LOG_ROLLING_FILE"/>
+        </root>
+    </springProfile>
+
+    <springProfile name="debug">
+        <appender name="DEBUG_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+            <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                <level>DEBUG</level>
+            </filter>
+            <encoder>
+                <pattern>${LOG_PATTERN_CONSOLE}</pattern>
+                <charset>${LOG_CHARSET}</charset>
+            </encoder>
+        </appender>
+
+        <logger name="com.netease.jv" level="DEBUG" additivity="false">
+            <appender-ref ref="DEBUG_CONSOLE"/>
+        </logger>
+    </springProfile>
+
+</configuration>

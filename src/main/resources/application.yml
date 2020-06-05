@@ -1,0 +1,32 @@
+﻿spring:
+  application:
+    name: jv-sms-cmpp
+
+gs:
+  env: local
+  alarm:
+    email:
+      to: 
+      cc:
+
+server:
+  port: 8081
+
+cmpp:
+  host:
+  port: 
+  userName: 
+  pwd: 
+  spCode: 
+  maxChannel: 
+  serviceId:
+  writeLimit: 
+
+mail:
+  protocol: 
+  host: 
+  port: 
+  username: 
+  default.encoding: UTF-8
+  smtp.auth: false
+  smtp.ssl.enable: false
